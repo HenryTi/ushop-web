@@ -16,7 +16,7 @@ const Layout = ({ children, title = 'This is the default title' }: Props) => (
 
         </Head>
         <header>
-            header
+            Header here
         </header>
         <div className="container">
             {children}
