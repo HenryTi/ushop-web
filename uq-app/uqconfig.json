@@ -1,0 +1,15 @@
+{
+    "devs": {
+        "bz": {
+            "name": "bizdev",
+            "alias": "bz"
+        }
+    },
+    "uqs": [
+        {
+            "dev": "bz",
+            "name": "workshop",
+            "alias": "Workshop"
+        }
+    ]
+}

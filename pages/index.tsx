@@ -23,6 +23,7 @@ const Home: NextPage = () => {
                 </p>
 
                 <div className={styles.grid}>
+                    <a href="auth/login" className={styles.card}>login</a>
                     <a href="p1/page1" className={styles.card}>page1</a>
                     <a href="p1/page2" className={styles.card}>page2</a>
 
