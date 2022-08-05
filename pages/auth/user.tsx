@@ -2,13 +2,13 @@ import { userService } from "helpers/services";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-export default function () {
+function Page() {
     let router = useRouter();
     let [userObj, setUserObj] = useState(undefined);
     useEffect(() => {
         userService.load();
         setUserObj(userService.user);
-    }, [userService]);
+    }, []);
     if (userObj === null) {
         if (typeof window !== 'undefined') {
             router.push('/auth/login?backurl=' + router.route);
@@ -29,3 +29,5 @@ export default function () {
         <button onClick={onClick}>logout</button>
     </span>;
 }
+
+export default Page;

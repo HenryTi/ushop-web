@@ -9,7 +9,7 @@ function User() {
     useEffect(() => {
         userService.load();
         setUserObj(userService.user);
-    }, [userService]);
+    }, []);
     if (!userObj) {
         return <Link href={'/auth/login?backurl=' + router.route}>
             <a className="btn btn-link">
