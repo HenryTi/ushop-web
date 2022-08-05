@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Layout from 'components/Layout'
-import { getUqServer } from 'uq-app';
-import { Cookies } from 'next/dist/server/web/spec-extension/cookies';
+import { getUqSession } from 'uq-app';
+import { GetServerSideProps } from 'next';
 
 interface Props {
     data: any;
@@ -28,11 +28,12 @@ const Page1 = ({ data }: Props) => {
     </Layout>
 }
 
-export async function getServerSideProps({ res, req }: { res: any; req: any; }): Promise<{ props: Props }> {
-    let uqServer = await getUqServer();
+export const getServerSideProps: GetServerSideProps = async ({ req }): Promise<{ props: Props }> => {
+    let uqServer = await getUqSession();
     let { BzWorkshop } = uqServer.uqs;
     let ret = await BzWorkshop.$getUnitTime.query({});
-    res.setHeader("set-cookie", `yourParameter=b; path=/; samesite=lax; httponly; `)
+    //req.cookies
+    //res.setHeader("set-cookie", `yourParameter=b; path=/; samesite=lax; httponly; `)
     return {
         props: {
             data: {

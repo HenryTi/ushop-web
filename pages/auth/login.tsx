@@ -1,27 +1,90 @@
-export default function Login() {
+import { useRouter } from 'next/router';
+import { Controller, useForm } from 'react-hook-form';
+import { GetStaticProps, GetStaticPaths, GetServerSideProps } from 'next';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as Yup from 'yup';
+import { userService } from 'helpers/services';
+import { FA } from 'tonwa-com';
+
+type LoginValues = {
+    username: string;
+    password: string;
+    apiError?: string;
+};
+
+interface Props {
+    backurl: string;
+}
+
+export default function Login({ backurl }: Props) {
+    let router = useRouter();
+    const validationSchema = Yup.object().shape({
+        username: Yup.string().required('Username is required'),
+        password: Yup.string().required('Password is required')
+    });
+    let formOptions = { resolver: yupResolver(validationSchema) };
+    const { register, handleSubmit, setError, formState, clearErrors } = useForm<LoginValues>(formOptions);
+    const { errors } = formState;
+    async function onSubmit(data: any) {
+        let { username, password } = data;
+        clearErrors('apiError');
+        let ret = await userService.login(username, password);
+        if (ret as any === '') {
+            setError("apiError", { message: 'user or password error!' });
+            return;
+        }
+        router.push(backurl);
+    }
+    function Input({ name, type, label }: { label: string; name: string; type?: string; }) {
+        let err = (errors as any)[name];
+        return <>
+            <label>{label}</label>
+            <input name={name} type={type ?? 'text'} {...register(name as any)} className={`form-control ${err ? 'is-invalid' : ''}`} />
+            <Error name={name} />
+        </>;
+    }
+    function Error({ name }: { name: string; }) {
+        let err = (errors as any)[name];
+        if (!err) return null;
+        return <div className="invalid-feedback">{err?.message}</div>;
+    }
+    function RowInput({ name, type, label }: { label: string; name: string; type?: string; }) {
+        return <div className="mb-3">
+            <Input name={name} type={type} label={label} />
+        </div>;
+    }
+    function Alert({ name }: { name: string; }) {
+        let err = (errors as any)[name];
+        if (!err) return null;
+        return <div className="alert alert-info text-danger">
+            <FA name="exclamation-circle" className="me-3" />
+            {err?.message}
+        </div>;
+    }
+    function Submit() {
+        return <button disabled={formState.isSubmitting} className="btn btn-primary">
+            {formState.isSubmitting && <span className="spinner-border spinner-border-sm mr-1"></span>}
+            Login
+        </button>
+    }
     return <div className="container">
-        <div className="text-center p-3 fs-5 text-primary">登录</div>
-        <form>
-            <div className="row mb-3">
-                <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>
-                <div className="col-sm-10">
-                    <input type="email" className="form-control" id="inputEmail3" />
+        <div className="col-lg-4 offset-lg-4 col-md-6 offset-md-3 col-sm-8 offset-sm-2 mt-5">
+            <div className="alert alert-info">
+                Username: test<br />
+                Password: test
+            </div>
+            <div className="card">
+                <h4 className="card-header">Next.js JWT Login Example</h4>
+                <div className="card-body">
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <RowInput name="username" label="UserName" />
+                        <RowInput name="password" label="Password" type="password" />
+                        <Alert name="apiError" />
+                        <Submit />
+                    </form>
                 </div>
             </div>
-            <div className="row mb-3">
-                <label htmlFor="inputPassword3" className="col-sm-2 col-form-label">Password</label>
-                <div className="col-sm-10">
-                    <input type="password" className="form-control" id="inputPassword3" />
-                </div>
-            </div>
-            <div className="row mb-3">
-                <div className="offset-sm-2 col-sm-10">
-                    <button type="submit" className="btn btn-primary" id="inputPassword3">
-                        Submit
-                    </button>
-                </div>
-            </div>
-        </form>
+        </div>
         <div className="row mb-3">
             <div className="offset-sm-2">
                 <button className="btn btn-link" onClick={() => alert('forget')}>
@@ -37,19 +100,10 @@ export default function Login() {
     </div>;
 }
 
-/*
-<Form BandTemplate={FormBandTemplate1}>
-<BandString label="登录账号" name="username"
-    placeholder="手机/邮箱/用户名" rule={ruleIsRequired}
-    maxLength={100} />
-<BandPassword label="密码" name="password"
-    placeholder="密码" rule={ruleIsRequired}
-    maxLength={100} />
-<Band>
-    <FormErrors />
-</Band>
-<Band contentContainerClassName="text-center my-3">
-    <Submit onSubmit={onSubmit}><div className='mx-5'>登录</div></Submit>
-</Band>
-</Form>
-*/
+export const getServerSideProps: GetServerSideProps = async ({ query }): Promise<{ props: Props }> => {
+    return {
+        props: {
+            backurl: (query['backurl'] ?? '/') as string,
+        }
+    };
+}

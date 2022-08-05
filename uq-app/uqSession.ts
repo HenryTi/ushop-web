@@ -3,6 +3,7 @@ import { UQs, uqsSchema } from "./uqs";
 import uqconfigJson from './uqconfig.json';
 
 class UqSession {
+    net: Net;
     uqs: UQs;
     async init() {
         let net = new Net({
@@ -16,6 +17,7 @@ class UqSession {
         await net.init();
         let uqsMan = await createUQsMan(net, appConfig, uqConfigs, uqsSchema);
         this.uqs = uqsProxy(uqsMan) as UQs;
+        this.net = net;
     }
 
     title = 'app title';
@@ -53,11 +55,11 @@ function uqConfigsFromJson(json: { devs: { [dev: string]: any }; uqs: any[]; }):
 }
 const uqConfigs = uqConfigsFromJson(uqconfigJson);
 
-let uqServer: UqSession;
-export async function getUqServer(): Promise<UqSession> {
-    if (uqServer === undefined) {
-        uqServer = new UqSession();
-        await uqServer.init();
+let uqSession: UqSession;
+export async function getUqSession(): Promise<UqSession> {
+    if (uqSession === undefined) {
+        uqSession = new UqSession();
+        await uqSession.init();
     }
-    return uqServer;
+    return uqSession;
 }
