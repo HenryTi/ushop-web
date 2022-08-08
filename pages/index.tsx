@@ -82,12 +82,19 @@ const Home: NextPage<Props> = ({ tokenUser }: Props) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req }): Promise<{ props: Props }> => {
     let token = req.cookies['token'];
-    let ret = jwtDecode<any>(token);
-    return {
-        props: {
-            tokenUser: ret,
+    try {
+        let ret = jwtDecode<any>(token);
+        return {
+            props: {
+                tokenUser: ret,
+            }
+        };
+    }
+    catch {
+        return {
+            props: { tokenUser: '[none]' }
         }
-    };
+    }
 }
 
 export default Home
